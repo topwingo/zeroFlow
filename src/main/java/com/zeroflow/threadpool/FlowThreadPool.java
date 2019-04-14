@@ -28,7 +28,6 @@ public class FlowThreadPool {
                 new LinkedBlockingQueue<Runnable>(QUEUE_SIZE),
                 new ThreadFactory() {
                     private final AtomicInteger threadNumber = new AtomicInteger(1);
-
                     @Override
                     public Thread newThread(Runnable r) {
                         Thread t = new Thread(Thread.currentThread().getThreadGroup(), r, "zeroFlow-Thread:" + threadNumber.getAndIncrement(), 0);
@@ -53,10 +52,10 @@ public class FlowThreadPool {
      * @return
      */
     public static Executor getThreadPool() {
-        if (null == customThreadPool) {
-            return threadPool;
+        if (null != customThreadPool) {
+            return customThreadPool;
         }
-        return customThreadPool;
+        return threadPool;
     }
 
     //设置线程池
