@@ -49,8 +49,7 @@ public class FlowThreadPool {
                 }
                 , new ThreadPoolExecutor.CallerRunsPolicy());
         executor.prestartAllCoreThreads();
-        elog.info(LogEvent.of("FlowThreadPool-initThreadPool", "线程池初始化成功")
-        );
+        elog.info(LogEvent.of("FlowThreadPool-initThreadPool", "线程池初始化成功"));
         return executor;
     }
 

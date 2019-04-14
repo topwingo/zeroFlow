@@ -1,6 +1,5 @@
 package com.zeroflow.handler;
 
-import com.alibaba.fastjson.JSON;
 import com.zeroflow.annotation.Unit;
 import com.zeroflow.base.BaseFlowHandler;
 import com.zeroflow.bean.FlowResult;
@@ -17,11 +16,11 @@ import com.zeroflow.exception.RetryException;
  * @date:2019/4/8
  */
 
-public class TFlowHandle<C> extends BaseFlowHandler<MyData> {
-    private C A;
+public class T2FlowHandle extends  TFlowHandle<String>{
+
     private TestBiz flow = new TestBiz();
 
-    public TFlowHandle() {
+    public T2FlowHandle() {
         super();
     }
 
@@ -35,17 +34,17 @@ public class TFlowHandle<C> extends BaseFlowHandler<MyData> {
     }
 
 
-    @Unit(name = "T1", order = 1, asyn = true)
+    @Unit(name = "T4", order = 7, asyn = false)
     public void t1() throws InterruptedException, CriticalException {
-        flow.T1(123456L);
+        flow.T1(3333L);
     }
 
-    @Unit(name = "T2", order = 2,asyn = false, preCheck = {"T1"})
+    @Unit(name = "T5", order = 8,asyn = false)
     public void test2() throws RetryException, InterruptedException {
         this.getContext().setT2Result(flow.T2());
     }
 
-    @Unit(name = "T3", order = 3, preCheck = {"T1", "T2"})
+    @Unit(name = "T6", order = 9)
     public void test3() throws DiscardException {
         this.getContext().setT3Result(flow.T3("T0001"));
     }

@@ -73,6 +73,7 @@ public class RetryInvoke {
      */
     protected <T> T restoreContext(ErrorLog log) {
         Class<T> clazz = GenericsUtils.getSuperClassGenricType(flowHandler, 0);
+        System.out.println("#################"+clazz);
         T context = JSON.parseObject(log.getContext(), clazz);
         return context;
     }

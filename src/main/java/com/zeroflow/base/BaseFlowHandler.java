@@ -35,6 +35,10 @@ import java.util.concurrent.Executor;
 @Slf4j
 public abstract class BaseFlowHandler<D extends BaseContext> {
     private EnhanceLogger elog = EnhanceLogger.of(log);
+    //自定义的流程注解信息<Method,流程名称，是否开启异步，前置检查列表>
+    private static Map<String, Map<String, FourTuple<Method, String, Boolean, String[]>>> registerUnit = new ConcurrentHashMap<>();
+    //命令执行顺序
+    private static Map<String, List<String>> unitOrder = new ConcurrentHashMap<>();
     //上下文数据
     @Getter
     private D context;
@@ -48,11 +52,8 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
 
     //已执行的命令列表
     private List<String> commandRecord = new ArrayList<String>();
-
     //错误日志
     private ErrorLog errorLog = null;
-    //自定义的流程注解信息<Method,流程名称，是否开启异步，前置检查列表>
-    private Map<String, FourTuple<Method, String, Boolean, String[]>> registerUnit = new ConcurrentHashMap<>();
     //异步线程池大小
     //异步线程
     @Getter
@@ -70,34 +71,49 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
      * 解释自定义注解
      */
     private void registerUnit() {
-        Method[] declaredMethods = this.getClass().getMethods();
-        ArrayList<TwoTuple<String, Integer>> orderList = new ArrayList();
-        for (Method method : declaredMethods) {
-            if (method.isAnnotationPresent(Unit.class)) {
-                Unit annotation = method.getAnnotation(Unit.class);
-                //单元名称
-                String name = annotation.name();
-                //命令执行顺序
-                Integer order = annotation.order();
-                //是否异步
-                boolean asyn = annotation.asyn();
-                //前置检查条件
-                String[] preCheck = annotation.preCheck();
-                FourTuple<Method, String, Boolean, String[]> unit = new FourTuple<Method, String, Boolean, String[]>(method, name, asyn, preCheck);
-                registerUnit.put(name, unit);
-                orderList.add(new TwoTuple(name, order));
+        if (null == registerUnit.get(this.getClass().getName())) {
+            synchronized (BaseFlowHandler.class) {
+                if (null == registerUnit.get(this.getClass().getName())) {
+                    Map<String, FourTuple<Method, String, Boolean, String[]>> flowUnit = new ConcurrentHashMap<>();
+                    ArrayList<TwoTuple<String, Integer>> orderList = new ArrayList();
+                    Class finalSuperClass = this.getClass();
+                    while (!(finalSuperClass.getSuperclass().getName().equals(Object.class.getName()))) {
+                        Method[] declaredMethods = finalSuperClass.getMethods();
+                        for (Method method : declaredMethods) {
+                            if (method.isAnnotationPresent(Unit.class)) {
+                                Unit annotation = method.getAnnotation(Unit.class);
+                                //单元名称
+                                String name = annotation.name();
+                                //命令执行顺序
+                                Integer order = annotation.order();
+                                //是否异步
+                                boolean asyn = annotation.asyn();
+                                //前置检查条件
+                                String[] preCheck = annotation.preCheck();
+                                FourTuple<Method, String, Boolean, String[]> unit = new FourTuple<>(method, name, asyn, preCheck);
+                                flowUnit.put(name, unit);
+                                orderList.add(new TwoTuple(name, order));
+                            }
+                        }
+                        finalSuperClass = finalSuperClass.getSuperclass();
+                    }
+                    registerUnit.put(this.getClass().getName(), flowUnit);
+                    //生成执行命令顺序
+                    Collections.sort(orderList, (TwoTuple<String, Integer> x, TwoTuple<String, Integer> y) -> x.second > y.second ? 1 : -1);
+                    List<String> execCommandList = new ArrayList<String>();
+                    for (TwoTuple<String, Integer> value : orderList) {
+                        execCommandList.add(value.first);
+                    }
+                    unitOrder.put(this.getClass().getName(), execCommandList);
+                }
+                elog.info(LogEvent.of("BaseFlowHandler-registerUnit", this.getClass().getName() + "注册流程单元信息成功"));
             }
-        }
-        //生成执行命令顺序
-        Collections.sort(orderList, (TwoTuple<String, Integer> x, TwoTuple<String, Integer> y) -> x.second > y.second ? 1 : -1);
-        for (TwoTuple<String, Integer> value : orderList) {
-            execCommandList.add(value.first);
         }
     }
 
 
     protected List<String> getCommandList() {
-        return execCommandList;
+        return unitOrder.get(this.getClass().getName());
     }
 
 
@@ -250,7 +266,9 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
                 );
                 return;
             }
-            FourTuple<Method, String, Boolean, String[]> unit = registerUnit.get(command);
+
+            FourTuple<Method, String, Boolean, String[]> unit = registerUnit.get(this.getClass().getName()).get(command);
+            ;
             if (null == unit || null == unit.first) {
                 throw new CriticalException("找不到配置的命令名称:" + command, FlowErrEnum.BIZ_ERROR.code());
             }
@@ -330,7 +348,8 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
 
     private void reflectInvoke(String command) throws CriticalException, RetryException, DiscardException {
         try {
-            FourTuple<Method, String, Boolean, String[]> unit = registerUnit.get(command);
+            FourTuple<Method, String, Boolean, String[]> unit = registerUnit.get(this.getClass().getName()).get(command);
+            ;
             beforeCommand(command);
             unit.first.invoke(this);
             commandRecord.add(command);

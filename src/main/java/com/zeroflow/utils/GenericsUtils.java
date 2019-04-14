@@ -1,5 +1,7 @@
 package com.zeroflow.utils;
 
+import com.zeroflow.base.BaseFlowHandler;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
@@ -29,7 +31,11 @@ public class GenericsUtils {
      */
     public static Class getSuperClassGenricType(Class clazz, int index)
             throws IndexOutOfBoundsException {
-        Type genType = clazz.getGenericSuperclass();
+        Class finalSuperClass=clazz;
+        while(!(finalSuperClass.getSuperclass().getName().equals(BaseFlowHandler.class.getName()))) {
+            finalSuperClass=finalSuperClass.getSuperclass();
+        }
+        Type genType = finalSuperClass.getGenericSuperclass();
         if (!(genType instanceof ParameterizedType)) {
             return Object.class;
         }

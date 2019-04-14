@@ -3,6 +3,7 @@ package com.zeroflow.test;
 import com.zeroflow.base.BaseFlowHandler;
 import com.zeroflow.bean.FlowResult;
 import com.zeroflow.context.MyData;
+import com.zeroflow.handler.T2FlowHandle;
 import com.zeroflow.handler.TFlowHandle;
 import com.zeroflow.handler.TFlowLogHandler;
 import com.zeroflow.invoke.RetryInvoke;
@@ -22,7 +23,7 @@ public class TestFlow {
     private EnhanceLogger elog = EnhanceLogger.of(log);
 
     @Test
-    public void execFlow() throws Exception {
+    public void execFlowT2() throws Exception {
         elog.info(LogEvent.of("TestFlow-execFlow", "执行流程"));
         //定义上下文数据，构建流程入参
         MyData data = new MyData();
@@ -30,6 +31,28 @@ public class TestFlow {
         data.setFlowName("TestFlow");
         data.setUserID(123456);
         for (int i = 0; i < 1; i++) {
+            //创建流程
+            BaseFlowHandler handle = new T2FlowHandle();
+            //设置上下文对象，设置日志管理器
+            handle.setContext(data).setFlowLogHandler(TFlowLogHandler.class);
+            //执行线程
+            FlowResult<MyData> result = handle.invoke();
+            elog.info(LogEvent.of("TestFlow-execFlow", "流程执行结果")
+                    .analyze("result", result)
+            );
+        }
+        Thread.sleep(1000);
+    }
+
+    @Test
+    public void execFlow() throws Exception {
+        elog.info(LogEvent.of("TestFlow-execFlow", "执行流程"));
+        //定义上下文数据，构建流程入参
+        MyData data = new MyData();
+        data.setUniqueCode("uuid:123456789");
+        data.setFlowName("TestFlow");
+        data.setUserID(123456);
+        for (int i = 0; i < 3; i++) {
             //创建流程
             BaseFlowHandler handle = new TFlowHandle();
             //设置上下文对象，设置日志管理器
