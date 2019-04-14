@@ -9,6 +9,7 @@ import com.zeroflow.utils.EnhanceLogger;
 import com.zeroflow.utils.GenericsUtils;
 import com.zeroflow.utils.LogEvent;
 import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +20,7 @@ import java.util.List;
  * @date:2019/4/11
  */
 @Slf4j
-public class RetryInvoke{
+public class RetryInvoke {
     private EnhanceLogger elog = EnhanceLogger.of(log);
     //流程执行器
     private Class<? extends BaseFlowHandler> flowHandler;
@@ -40,6 +41,11 @@ public class RetryInvoke{
         }
     }
 
+    public RetryInvoke(Class<? extends BaseFlowHandler> flowHandlerClz, BaseFlowLogHandler flowLogHandler) {
+        this.flowHandler = flowHandlerClz;
+        this.flowLogHandler = flowLogHandler;
+    }
+
     /**
      * 执行重试
      *
@@ -54,7 +60,7 @@ public class RetryInvoke{
             List<String> commandRecord = restoreCommandRecord(errorLog);
             //获取泛型对应的值
             BaseFlowHandler handle = flowHandler.newInstance();
-            handle.setContext(restoreContext(errorLog)).setFlowLogHandler(flowLogHandler).setRetryParam(commandRecord,errorLog);
+            handle.setContext(restoreContext(errorLog)).setFlowLogHandler(flowLogHandler).setRetryParam(commandRecord, errorLog);
             handle.invoke();
         }
     }
@@ -65,7 +71,7 @@ public class RetryInvoke{
      * @param log
      * @return
      */
-    protected <T> T  restoreContext(ErrorLog log) {
+    protected <T> T restoreContext(ErrorLog log) {
         Class<T> clazz = GenericsUtils.getSuperClassGenricType(flowHandler, 0);
         T context = JSON.parseObject(log.getContext(), clazz);
         return context;
