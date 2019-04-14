@@ -25,14 +25,14 @@ public abstract class BaseFlowLogHandler {
     private EnhanceLogger elog = EnhanceLogger.of(log);
 
     /**
-     * 新增错误日志
+     * 写入错误日志
      *
      * @param log
      */
     protected abstract void saveExceptionLog(ErrorLog log);
 
     /**
-     * 修改增错误日志，以log的id判断，非0代表重试流程数据
+     * 用于重试更新错误日志
      *
      * @param log
      */
@@ -40,13 +40,18 @@ public abstract class BaseFlowLogHandler {
 
 
     /**
-     * 读取错误日志列表
-     *
+     * 每次重试时读取的错误日志
      * @return
      */
     public abstract List<ErrorLog> getErrorLogList();
 
 
+    /**
+     * 记录执行流程的异常
+     * @param handler
+     * @param log
+     * @return
+     */
     public FlowResult invoke(BaseFlowHandler handler, ErrorLog log) {
         FlowResult result = new FlowResult();
         try {
@@ -148,6 +153,12 @@ public abstract class BaseFlowLogHandler {
     }
 
 
+    /**
+     * 记录执行异步流程的异常
+     * @param handler
+     * @param command
+     * @param commandRecord
+     */
     public void asynInvoke(BaseFlowHandler handler, String command, List commandRecord) {
         try {
             handler.asynInvoke(command, commandRecord);

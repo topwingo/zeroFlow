@@ -1,5 +1,9 @@
 package com.zeroflow.threadpool;
 
+import com.zeroflow.utils.EnhanceLogger;
+import com.zeroflow.utils.LogEvent;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -9,7 +13,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @description: JAVA线程池
  * @date:2019-04-13
  */
+@Slf4j
 public class FlowThreadPool {
+    private static EnhanceLogger elog = EnhanceLogger.of(log);
     private static Executor threadPool = initThreadPool();
     private static Executor customThreadPool;
 
@@ -28,6 +34,7 @@ public class FlowThreadPool {
                 new LinkedBlockingQueue<Runnable>(QUEUE_SIZE),
                 new ThreadFactory() {
                     private final AtomicInteger threadNumber = new AtomicInteger(1);
+
                     @Override
                     public Thread newThread(Runnable r) {
                         Thread t = new Thread(Thread.currentThread().getThreadGroup(), r, "zeroFlow-Thread:" + threadNumber.getAndIncrement(), 0);
@@ -40,10 +47,11 @@ public class FlowThreadPool {
                         return t;
                     }
                 }
-                ,new ThreadPoolExecutor.CallerRunsPolicy());
+                , new ThreadPoolExecutor.CallerRunsPolicy());
         executor.prestartAllCoreThreads();
+        elog.info(LogEvent.of("FlowThreadPool-initThreadPool", "线程池初始化成功")
+        );
         return executor;
-
     }
 
     /**
@@ -55,10 +63,17 @@ public class FlowThreadPool {
         if (null != customThreadPool) {
             return customThreadPool;
         }
+        if (null == threadPool) {
+            synchronized (FlowThreadPool.class) {
+                if (null == threadPool) {
+                    threadPool = initThreadPool();
+                }
+            }
+        }
         return threadPool;
     }
 
-    //设置线程池
+    //用手设置新线程池
     public static void setThreadPool(Executor threadPool) {
         FlowThreadPool.customThreadPool = threadPool;
     }

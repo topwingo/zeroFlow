@@ -20,7 +20,6 @@ public @interface Unit {
     int order() default 0;
     //是否异步
     boolean asyn() default false;
-
     //前置检查条件
     String[] preCheck() default {};
 }

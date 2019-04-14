@@ -23,7 +23,7 @@ public class TFlowLogHandler extends BaseFlowLogHandler {
 
     @Override
     protected void saveExceptionLog(ErrorLog log) {
-        elog.info(LogEvent.of("TflowInvoker-saveExceptionLog", "保存数据")
+        elog.info(LogEvent.of("TflowInvoker-saveExceptionLog", "保存错误日志数据")
                 .others("log", log)
         );
 
@@ -31,7 +31,7 @@ public class TFlowLogHandler extends BaseFlowLogHandler {
 
     @Override
     protected void updateExceptionLog(ErrorLog log) {
-        elog.info(LogEvent.of("TflowInvoker-updateExceptionLog", "修改数据")
+        elog.info(LogEvent.of("TflowInvoker-updateExceptionLog", "更新错误日志数据")
                 .others("log", log)
         );
 
@@ -40,7 +40,7 @@ public class TFlowLogHandler extends BaseFlowLogHandler {
     @Override
     public List<ErrorLog> getErrorLogList() {
         ErrorLog log = new ErrorLog();
-        String context = "{\"flowName\":\"TTTTTTTFlow\",\"t2Result\":\"i am retry\",\"t3Result\":[],\"uniqueCode\":\"uuid:11111111111111\",\"userID\":123456}";
+        String context = "{\"flowName\":\"retry-Flow\",\"t2Result\":\"i am retry\",\"t3Result\":[],\"uniqueCode\":\"uuid:123456789\",\"userID\":00000001}";
         String commandRecord = "[\"T2\"]";
         log.setContext(context);
         log.setCommand_record(commandRecord);

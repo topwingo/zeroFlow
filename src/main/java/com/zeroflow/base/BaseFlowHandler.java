@@ -6,7 +6,6 @@ import com.zeroflow.bean.ErrorLog;
 import com.zeroflow.bean.FlowResult;
 import com.zeroflow.bean.tuple.FourTuple;
 import com.zeroflow.bean.tuple.TwoTuple;
-import com.zeroflow.conf.ExceptionTypeEnum;
 import com.zeroflow.conf.FlowErrEnum;
 import com.zeroflow.exception.CriticalException;
 import com.zeroflow.exception.DiscardException;
@@ -94,7 +93,6 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
         for (TwoTuple<String, Integer> value : orderList) {
             execCommandList.add(value.first);
         }
-        System.out.println(JSON.toJSONString(execCommandList));
     }
 
 

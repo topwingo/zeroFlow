@@ -11,6 +11,8 @@ import lombok.Data;
 @Data
 public class BaseContext {
     private long userID=0;
+    //每条业务执行的唯一记录号
     private String uniqueCode="";
+    //业务名称
     private String flowName="";
 }
