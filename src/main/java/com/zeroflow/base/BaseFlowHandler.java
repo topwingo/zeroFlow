@@ -42,7 +42,6 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
     @Getter
     private D context;
     //重试流程标识
-    @Getter
     private boolean retryFlag;
     //流程执行器
     private BaseFlowLogHandler flowLogHandler;
@@ -122,8 +121,7 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
 
 
     /**
-     * 上下文数据
-     *
+     * 上下文数据     *
      * @param context
      * @return
      */
