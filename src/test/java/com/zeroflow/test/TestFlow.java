@@ -52,7 +52,7 @@ public class TestFlow {
         data.setUniqueCode("uuid:123456789");
         data.setFlowName("TestFlow");
         data.setUserID(123456);
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 1; i++) {
             //创建流程
             BaseFlowHandler handle = new TFlowHandle();
             //设置上下文对象，设置日志管理器

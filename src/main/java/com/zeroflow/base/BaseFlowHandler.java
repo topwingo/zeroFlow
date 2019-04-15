@@ -91,8 +91,10 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
                                 //前置检查条件
                                 String[] preCheck = annotation.preCheck();
                                 FourTuple<Method, String, Boolean, String[]> unit = new FourTuple<>(method, name, asyn, preCheck);
-                                flowUnit.put(name, unit);
-                                orderList.add(new TwoTuple(name, order));
+                                if (null == flowUnit.get(name)) {
+                                    flowUnit.put(name, unit);
+                                    orderList.add(new TwoTuple(name, order));
+                                }
                             }
                         }
                         finalSuperClass = finalSuperClass.getSuperclass();

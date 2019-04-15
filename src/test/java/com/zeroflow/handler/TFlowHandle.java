@@ -35,18 +35,21 @@ public class TFlowHandle<C> extends BaseFlowHandler<MyData> {
     }
 
 
-    @Unit(name = "T1", order = 1, asyn = true)
-    public void t1() throws InterruptedException, CriticalException {
+    @Unit(name = "T1", order = 1, asyn = false)
+    public void T1() throws InterruptedException, CriticalException {
+        System.out.println("########T1");
         flow.T1(123456L);
     }
 
     @Unit(name = "T2", order = 2,asyn = false, preCheck = {"T1"})
-    public void test2() throws RetryException, InterruptedException {
+    public void T2() throws RetryException, InterruptedException {
+        System.out.println("########T2");
         this.getContext().setT2Result(flow.T2());
     }
 
     @Unit(name = "T3", order = 3, preCheck = {"T1", "T2"})
-    public void test3() throws DiscardException {
+    public void T3() throws DiscardException {
+        System.out.println("########T3");
         this.getContext().setT3Result(flow.T3("T0001"));
     }
 

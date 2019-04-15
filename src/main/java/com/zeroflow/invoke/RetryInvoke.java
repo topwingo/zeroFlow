@@ -6,10 +6,11 @@ import com.zeroflow.base.BaseFlowHandler;
 import com.zeroflow.base.BaseFlowLogHandler;
 import com.zeroflow.bean.ErrorLog;
 import com.zeroflow.utils.EnhanceLogger;
-import com.zeroflow.utils.GenericsUtils;
 import com.zeroflow.utils.LogEvent;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,8 +73,7 @@ public class RetryInvoke {
      * @return
      */
     protected <T> T restoreContext(ErrorLog log) {
-        Class<T> clazz = GenericsUtils.getSuperClassGenricType(flowHandler, 0);
-        System.out.println("#################"+clazz);
+        Class<T> clazz = getSuperClassGenricType(flowHandler, 0);
         T context = JSON.parseObject(log.getContext(), clazz);
         return context;
     }
@@ -89,5 +89,31 @@ public class RetryInvoke {
         });
         return commandRecord;
     }
+
+    /**
+     * 通过反射,获得定义Class时声明的最终父类的范型参数的类型
+     *
+     * @param clazz
+     * @param index 返回某下标的类型
+     */
+    private Class getSuperClassGenricType(Class clazz, int index) throws IndexOutOfBoundsException {
+        Class finalSuperClass = clazz;
+        while (!(finalSuperClass.getSuperclass().getName().equals(BaseFlowHandler.class.getName()))) {
+            finalSuperClass = finalSuperClass.getSuperclass();
+        }
+        Type genType = finalSuperClass.getGenericSuperclass();
+        if (!(genType instanceof ParameterizedType)) {
+            return Object.class;
+        }
+        Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
+        if (index >= params.length || index < 0) {
+            return Object.class;
+        }
+        if (!(params[index] instanceof Class)) {
+            return Object.class;
+        }
+        return (Class) params[index];
+    }
+
 
 }
