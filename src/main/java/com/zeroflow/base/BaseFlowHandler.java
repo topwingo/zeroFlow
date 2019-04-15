@@ -1,10 +1,9 @@
 package com.zeroflow.base;
 
-import com.alibaba.fastjson.JSON;
 import com.zeroflow.annotation.Unit;
 import com.zeroflow.bean.ErrorLog;
 import com.zeroflow.bean.FlowResult;
-import com.zeroflow.bean.tuple.FourTuple;
+import com.zeroflow.bean.tuple.FiveTuple;
 import com.zeroflow.bean.tuple.TwoTuple;
 import com.zeroflow.conf.FlowErrEnum;
 import com.zeroflow.exception.CriticalException;
@@ -36,7 +35,7 @@ import java.util.concurrent.Executor;
 public abstract class BaseFlowHandler<D extends BaseContext> {
     private EnhanceLogger elog = EnhanceLogger.of(log);
     //自定义的流程注解信息<Method,流程名称，是否开启异步，前置检查列表>
-    private static Map<String, Map<String, FourTuple<Method, String, Boolean, String[]>>> registerUnit = new ConcurrentHashMap<>();
+    private static Map<String, Map<String, FiveTuple<Method, String, Boolean, Boolean, String[]>>> registerUnit = new ConcurrentHashMap<>();
     //命令执行顺序
     private static Map<String, List<String>> unitOrder = new ConcurrentHashMap<>();
     //上下文数据
@@ -74,7 +73,7 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
         if (null == registerUnit.get(this.getClass().getName())) {
             synchronized (BaseFlowHandler.class) {
                 if (null == registerUnit.get(this.getClass().getName())) {
-                    Map<String, FourTuple<Method, String, Boolean, String[]>> flowUnit = new ConcurrentHashMap<>();
+                    Map<String, FiveTuple<Method, String, Boolean, Boolean, String[]>> flowUnit = new ConcurrentHashMap<>();
                     ArrayList<TwoTuple<String, Integer>> orderList = new ArrayList();
                     Class finalSuperClass = this.getClass();
                     while (!(finalSuperClass.getSuperclass().getName().equals(Object.class.getName()))) {
@@ -88,12 +87,16 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
                                 Integer order = annotation.order();
                                 //是否异步
                                 boolean asyn = annotation.asyn();
+                                //是否启用流程单元
+                                boolean enable = annotation.enable();
                                 //前置检查条件
                                 String[] preCheck = annotation.preCheck();
-                                FourTuple<Method, String, Boolean, String[]> unit = new FourTuple<>(method, name, asyn, preCheck);
+                                FiveTuple<Method, String, Boolean, Boolean, String[]> unit = new FiveTuple<>(method, name, asyn, enable, preCheck);
                                 if (null == flowUnit.get(name)) {
                                     flowUnit.put(name, unit);
-                                    orderList.add(new TwoTuple(name, order));
+                                    if (enable) {
+                                        orderList.add(new TwoTuple(name, order));
+                                    }
                                 }
                             }
                         }
@@ -269,13 +272,13 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
                 return;
             }
 
-            FourTuple<Method, String, Boolean, String[]> unit = registerUnit.get(this.getClass().getName()).get(command);
+            FiveTuple<Method, String, Boolean, Boolean, String[]> unit = registerUnit.get(this.getClass().getName()).get(command);
             ;
             if (null == unit || null == unit.first) {
                 throw new CriticalException("找不到配置的命令名称:" + command, FlowErrEnum.BIZ_ERROR.code());
             }
             //前置条件检查
-            for (String pre : unit.fourth) {
+            for (String pre : unit.five) {
                 if (!commandRecord.contains(pre)) {
                     throw new CriticalException(command + "的前置条件:" + pre + "未完成", FlowErrEnum.BIZ_ERROR.code());
                 }
@@ -350,8 +353,7 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
 
     private void reflectInvoke(String command) throws CriticalException, RetryException, DiscardException {
         try {
-            FourTuple<Method, String, Boolean, String[]> unit = registerUnit.get(this.getClass().getName()).get(command);
-            ;
+            FiveTuple<Method, String, Boolean, Boolean, String[]> unit = registerUnit.get(this.getClass().getName()).get(command);
             beforeCommand(command);
             unit.first.invoke(this);
             commandRecord.add(command);

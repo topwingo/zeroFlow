@@ -20,6 +20,8 @@ public @interface Unit {
     int order() default 0;
     //是否异步
     boolean asyn() default false;
+    //是否启用此流程单元
+    boolean enable() default true;
     //前置检查条件
     String[] preCheck() default {};
 }
