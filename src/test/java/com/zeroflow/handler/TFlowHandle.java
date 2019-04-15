@@ -17,8 +17,8 @@ import com.zeroflow.exception.RetryException;
  * @date:2019/4/8
  */
 
-public class TFlowHandle<C> extends BaseFlowHandler<MyData> {
-    private C A;
+public class TFlowHandle extends BaseFlowHandler<MyData> {
+
     private TestBiz flow = new TestBiz();
 
     public TFlowHandle() {
@@ -41,7 +41,7 @@ public class TFlowHandle<C> extends BaseFlowHandler<MyData> {
         flow.T1(123456L);
     }
 
-    @Unit(name = "T2", order = 2,asyn = false, preCheck = {"T1"})
+    @Unit(name = "T2", order = 2,enable = true,asyn = false, preCheck = {"T1"})
     public void T2() throws RetryException, InterruptedException {
         System.out.println("########T2");
         this.getContext().setT2Result(flow.T2());
