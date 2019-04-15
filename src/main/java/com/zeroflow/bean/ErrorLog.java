@@ -12,8 +12,6 @@ import org.apache.commons.lang3.StringUtils;
  * @author richard.chen
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class ErrorLog {
     private long id;
     private long user_id;
@@ -24,8 +22,10 @@ public class ErrorLog {
     private String exception_command;
     private String context;
     private String command_record;
-    private int type = 0;//0已重新执行并完成，1可重试,2不可重试
-    private int retry_num = 0;//重试次数
+    //0已重新执行并完成，1可重试,2不可重试
+    private int type = 0;
+    //重试次数
+    private int retry_num = 0;
 
     public void of(int code, String message, long user_id, String unique_code, String flowName, String context, String exception_command, String command_record, int type, int retry_num) {
         this.code = code;

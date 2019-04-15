@@ -1,6 +1,7 @@
 package com.zeroflow.test;
 
 import com.zeroflow.base.BaseFlowHandler;
+import com.zeroflow.bean.ErrorLog;
 import com.zeroflow.bean.FlowResult;
 import com.zeroflow.context.MyData;
 import com.zeroflow.handler.T2FlowHandle;
@@ -24,11 +25,11 @@ public class TestFlow {
 
     @Test
     public void execFlowT2() throws Exception {
-        elog.info(LogEvent.of("TestFlow-execFlow", "执行流程"));
+        elog.info(LogEvent.of("TestFlow-execFlowT2", "执行流程"));
         //定义上下文数据，构建流程入参
         MyData data = new MyData();
         data.setUniqueCode("uuid:123456789");
-        data.setFlowName("TestFlow");
+        data.setFlowName("execFlowT2");
         data.setUserID(123456);
         for (int i = 0; i < 1; i++) {
             //创建流程
@@ -37,7 +38,7 @@ public class TestFlow {
             handle.setContext(data).setFlowLogHandler(TFlowLogHandler.class);
             //执行线程
             FlowResult<MyData> result = handle.invoke();
-            elog.info(LogEvent.of("TestFlow-execFlow", "流程执行结果")
+            elog.info(LogEvent.of("TestFlow-execFlowT2", "流程执行结果")
                     .analyze("result", result)
             );
         }
@@ -77,4 +78,20 @@ public class TestFlow {
         }
         Thread.sleep(1000);
     }
+
+    @Test
+    public void singleRetry() throws Exception {
+        elog.info(LogEvent.of("TestFlow-singleRetry", "重试单条记录"));
+        ErrorLog log = new ErrorLog();
+        String context = "{\"flowName\":\"singleretry-Flow\",\"t2Result\":\"i am singleRetry\",\"t3Result\":[],\"uniqueCode\":\"uuid:11111\",\"userID\":00000002}";
+        String commandRecord = "[\"T2\"]";
+        log.setContext(context);
+        log.setCommand_record(commandRecord);
+
+        //设置需要重试的流程，流程需要用到的日志管理器
+        RetryInvoke invoke = new RetryInvoke(T2FlowHandle.class, TFlowLogHandler.class);
+        //执行重试
+        invoke.invoke(log);
+    }
 }
+

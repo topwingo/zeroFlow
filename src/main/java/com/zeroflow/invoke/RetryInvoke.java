@@ -59,11 +59,25 @@ public class RetryInvoke {
         );
         for (ErrorLog errorLog : errorLogList) {
             List<String> commandRecord = restoreCommandRecord(errorLog);
-            //获取泛型对应的值
             BaseFlowHandler handle = flowHandler.newInstance();
             handle.setContext(restoreContext(errorLog)).setFlowLogHandler(flowLogHandler).setRetryParam(commandRecord, errorLog);
             handle.invoke();
         }
+    }
+
+    /**
+     * 执行重试单个命令
+     *
+     * @throws Exception
+     */
+    public void invoke(ErrorLog errorLog) throws Exception {
+        elog.info(LogEvent.of("BaseRetryInvoke-invoke-Info", "执行重试流程")
+                .others("错误日志", errorLog)
+        );
+        List<String> commandRecord = restoreCommandRecord(errorLog);
+        BaseFlowHandler handle = flowHandler.newInstance();
+        handle.setContext(restoreContext(errorLog)).setFlowLogHandler(flowLogHandler).setRetryParam(commandRecord, errorLog);
+        handle.invoke();
     }
 
     /**
@@ -98,7 +112,8 @@ public class RetryInvoke {
      */
     private Class getSuperClassGenricType(Class clazz, int index) throws IndexOutOfBoundsException {
         Class finalSuperClass = clazz;
-        while (!(finalSuperClass.getSuperclass().getName().equals(BaseFlowHandler.class.getName()))) {
+        //向上查找，直到BaseFlowHandler,用于查出对应的Context类型
+        while (finalSuperClass.getSuperclass() != BaseFlowHandler.class) {
             finalSuperClass = finalSuperClass.getSuperclass();
         }
         Type genType = finalSuperClass.getGenericSuperclass();

@@ -48,12 +48,10 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
     private BaseFlowLogHandler flowLogHandler;
     //执行命令
     private ArrayList<String> execCommandList = new ArrayList();
-
     //已执行的命令列表
     private List<String> commandRecord = new ArrayList<String>();
     //错误日志
     private ErrorLog errorLog = null;
-    //异步线程池大小
     //异步线程
     @Getter
     private static Executor EXECUTOR = FlowThreadPool.getThreadPool();
@@ -76,7 +74,8 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
                     Map<String, FiveTuple<Method, String, Boolean, Boolean, String[]>> flowUnit = new ConcurrentHashMap<>();
                     ArrayList<TwoTuple<String, Integer>> orderList = new ArrayList();
                     Class finalSuperClass = this.getClass();
-                    while (!(finalSuperClass.getSuperclass().getName().equals(Object.class.getName()))) {
+                    //历遍包含父类中含有Unit的配置方法
+                    while (finalSuperClass.getSuperclass() != Object.class) {
                         Method[] declaredMethods = finalSuperClass.getMethods();
                         for (Method method : declaredMethods) {
                             if (method.isAnnotationPresent(Unit.class)) {

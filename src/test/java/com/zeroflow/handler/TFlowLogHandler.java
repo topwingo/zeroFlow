@@ -39,6 +39,9 @@ public class TFlowLogHandler extends BaseFlowLogHandler {
 
     @Override
     public List<ErrorLog> getErrorLogList() {
+        elog.info(LogEvent.of("TflowInvoker-getErrorLogList", "读取重试列表数据")
+        );
+
         ErrorLog log = new ErrorLog();
         String context = "{\"flowName\":\"retry-Flow\",\"t2Result\":\"i am retry\",\"t3Result\":[],\"uniqueCode\":\"uuid:123456789\",\"userID\":00000001}";
         String commandRecord = "[\"T2\"]";
