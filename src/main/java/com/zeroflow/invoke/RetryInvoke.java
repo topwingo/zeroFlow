@@ -110,7 +110,7 @@ public class RetryInvoke {
      * @param clazz
      * @param index 返回某下标的类型
      */
-    private Class getSuperClassGenricType(Class clazz, int index) throws IndexOutOfBoundsException {
+    protected Class getSuperClassGenricType(Class clazz, int index) throws IndexOutOfBoundsException {
         Class finalSuperClass = clazz;
         //向上查找，直到BaseFlowHandler,用于查出对应的Context类型
         while (finalSuperClass.getSuperclass() != BaseFlowHandler.class) {

@@ -39,20 +39,16 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
     //命令执行顺序
     private static Map<String, List<String>> unitOrder = new ConcurrentHashMap<>();
     //上下文数据
-    @Getter
     private D context;
     //重试流程标识
     private boolean retryFlag;
     //流程执行器
     private BaseFlowLogHandler flowLogHandler;
-    //执行命令
-    private ArrayList<String> execCommandList = new ArrayList();
     //已执行的命令列表
     private List<String> commandRecord = new ArrayList<String>();
     //错误日志
     private ErrorLog errorLog = null;
     //异步线程
-    @Getter
     private static Executor EXECUTOR = FlowThreadPool.getThreadPool();
 
     /**
@@ -119,9 +115,27 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
         return unitOrder.get(this.getClass().getName());
     }
 
+    /**
+     * 获取上下文数据
+     *
+     * @return
+     */
+    public D getContext() {
+        return this.context;
+    }
 
     /**
-     * 上下文数据     *
+     * 返回线程池
+     *
+     * @return
+     */
+    protected Executor getExecutor() {
+        return EXECUTOR;
+    }
+
+    /**
+     * 设置上下文数据
+     *
      * @param context
      * @return
      */
@@ -155,10 +169,11 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
      * @param commandRecord 已执行的命令
      * @param errorLog      重试日志信息
      */
-    public void setRetryParam(List<String> commandRecord, ErrorLog errorLog) {
+    public BaseFlowHandler setRetryParam(List<String> commandRecord, ErrorLog errorLog) {
         this.commandRecord = commandRecord;
         this.errorLog = errorLog;
         this.retryFlag = true;
+        return this;
     }
 
     /**
@@ -209,7 +224,7 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
         //构建一个已全部完成的命令列表，只将其中删除，重试时即仅重试当前命令
         List<String> commandRecord = new ArrayList<String>(getCommandList());
         commandRecord.remove(command);
-        EXECUTOR.execute(() -> {
+        getExecutor().execute(() -> {
             flowLogHandler.asynInvoke(this, command, commandRecord);
         });
     }

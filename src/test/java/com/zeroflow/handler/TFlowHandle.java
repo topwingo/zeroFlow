@@ -39,7 +39,7 @@ public class TFlowHandle extends BaseFlowHandler<MyData> {
     }
 
 
-    @Unit(name = "T1", order = 1, asyn = false)
+    @Unit(name = "T1", order = 1, asyn = true)
     public void T1() throws InterruptedException, CriticalException {
         elog.info(LogEvent.of("TFlowHandle", "######T1"));
         flow.T1(123456L);
