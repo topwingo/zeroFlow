@@ -47,14 +47,17 @@ public class RetryInvoke {
 
     /**
      * 自动根据日志的flowName字段分析出流程重试，flowName为流程className
+     *
      * @throws Exception
      */
     public void invoke() throws Exception {
         List<ErrorLog> errorLogList = flowLogHandler.getErrorLogList();
         elog.info(LogEvent.of("BaseRetryInvoke-invoke-Info", "执行批量重试")
-                .others("错误日志条数", errorLogList.size())
+                .others("logNum", errorLogList.size())
         );
         for (ErrorLog errorLog : errorLogList) {
+            elog.info(LogEvent.of("BaseRetryInvoke-invoke", "重试日志记录")
+                    .others("log", errorLog));
             try {
                 Class flowClass = Class.forName(errorLog.getFlowName());
                 BaseFlowHandler handler = (BaseFlowHandler) flowClass.newInstance();
@@ -70,13 +73,15 @@ public class RetryInvoke {
 
     /**
      * 指定流程执行批量重试
+     *
      * @param flowHandlerClz 流程
      * @throws Exception
      */
     public void invoke(Class<? extends BaseFlowHandler> flowHandlerClz) throws Exception {
         List<ErrorLog> errorLogList = flowLogHandler.getErrorLogList();
-        elog.info(LogEvent.of("BaseRetryInvoke-invoke", "执行批量重试")
-                .others("错误日志条数", errorLogList.size())
+        elog.info(LogEvent.of("BaseRetryInvoke-invoke", "执行指定流程批量重试")
+                .others("flow", flowHandlerClz)
+                .others("logNum", errorLogList.size())
         );
         for (ErrorLog errorLog : errorLogList) {
             invoke(flowHandlerClz, errorLog);
@@ -85,13 +90,15 @@ public class RetryInvoke {
 
     /**
      * 指定流程执行单条记录重试
+     *
      * @param flowHandlerClz 流程
-     * @param errorLog    错误日志
+     * @param errorLog       错误日志
      * @throws Exception
      */
     public void invoke(Class<? extends BaseFlowHandler> flowHandlerClz, ErrorLog errorLog) throws Exception {
-        elog.info(LogEvent.of("BaseRetryInvoke-invoke", "重试记录")
-                .others("日志", errorLog)
+        elog.info(LogEvent.of("BaseRetryInvoke-invoke", "重试日志记录")
+                .others("flow", flowHandlerClz)
+                .others("log", errorLog)
         );
         List<String> commandRecord = restoreCommandRecord(errorLog);
         BaseFlowHandler handle = flowHandlerClz.newInstance();
