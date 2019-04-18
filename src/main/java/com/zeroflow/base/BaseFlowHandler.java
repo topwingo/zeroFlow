@@ -238,7 +238,7 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
      * @throws DiscardException
      */
     public void asynInvoke(String command, List<String> commandRecord) throws CriticalException, RetryException, DiscardException {
-        asynExecCommand(this.context, command, commandRecord);
+        asynExecCommand(command, commandRecord);
     }
 
     /**
@@ -337,28 +337,27 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
     /**
      * 异步执行
      *
-     * @param context
      * @param command
      * @param commandRecord
      * @throws CriticalException
      * @throws RetryException
      * @throws DiscardException
      */
-    private void asynExecCommand(D context, String command, List commandRecord) throws CriticalException, RetryException, DiscardException {
+    private void asynExecCommand(String command, List commandRecord) throws CriticalException, RetryException, DiscardException {
         try {
             reflectInvoke(command);
         } catch (CriticalException ex) {
-            ex.of(command, commandRecord, context);
+            ex.of(command, commandRecord, this.context);
             throw ex;
         } catch (RetryException ex) {
-            ex.of(command, commandRecord, context);
+            ex.of(command, commandRecord, this.context);
             throw ex;
         } catch (DiscardException ex) {
-            ex.of(command, commandRecord, context);
+            ex.of(command, commandRecord, this.context);
             throw ex;
         } catch (Exception ex) {
             CriticalException unknowExcepton = new CriticalException(ex, ObjectUtils.defaultIfNull(ex.getMessage(), "unknow异常"), FlowErrEnum.ERROR.code());
-            unknowExcepton.of(command, commandRecord, context);
+            unknowExcepton.of(command, commandRecord, this.context);
             throw unknowExcepton;
         }
     }
