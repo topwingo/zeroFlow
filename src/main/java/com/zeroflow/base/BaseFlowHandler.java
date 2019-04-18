@@ -9,7 +9,7 @@ import com.zeroflow.conf.FlowErrEnum;
 import com.zeroflow.exception.CriticalException;
 import com.zeroflow.exception.DiscardException;
 import com.zeroflow.exception.RetryException;
-import com.zeroflow.threadpool.FlowThreadPool;
+import com.zeroflow.threadpool.ZeroFlowThreadPool;
 import com.zeroflow.utils.EnhanceLogger;
 import com.zeroflow.utils.LogEvent;
 import lombok.extern.slf4j.Slf4j;
@@ -128,7 +128,7 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
      * @return
      */
     protected Executor getExecutor() {
-        return FlowThreadPool.getThreadPool();
+        return ZeroFlowThreadPool.getThreadPool();
     }
 
     /**

@@ -11,11 +11,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author: richard.chen
  * @version: v1.0
- * @description: JAVA线程池
+ * @description: ZeroFlow线程池
  * @date:2019-04-13
  */
 @Slf4j
-public class FlowThreadPool {
+public class ZeroFlowThreadPool {
     private static EnhanceLogger elog = EnhanceLogger.of(log);
     //默认线程池
     private static Executor threadPool;
@@ -58,7 +58,7 @@ public class FlowThreadPool {
                 }
                 , new ThreadPoolExecutor.CallerRunsPolicy());
         executor.prestartAllCoreThreads();
-        elog.info(LogEvent.of("FlowThreadPool-initThreadPool", "ZeroFlow线程池初始化成功"));
+        elog.info(LogEvent.of("ZeroFlowThreadPool-initThreadPool", "ZeroFlow线程池初始化成功"));
         return executor;
     }
 
@@ -73,7 +73,7 @@ public class FlowThreadPool {
             return customThreadPool;
         }
         if (null == threadPool) {
-            synchronized (FlowThreadPool.class) {
+            synchronized (ZeroFlowThreadPool.class) {
                 if (null == threadPool) {
                     threadPool = initThreadPool();
                 }
@@ -84,7 +84,7 @@ public class FlowThreadPool {
 
     //用手设置新线程池
     public static void setThreadPool(Executor threadPool) {
-        FlowThreadPool.customThreadPool = threadPool;
+        ZeroFlowThreadPool.customThreadPool = threadPool;
     }
 
     /**
@@ -100,16 +100,16 @@ public class FlowThreadPool {
                 ExecutorService executorService = (ExecutorService) getThreadPool();
                 executorService.shutdown();
                 if (!executorService.awaitTermination(CLOSE_AWAIT_TIME, TimeUnit.MILLISECONDS)) {
-                    elog.info(LogEvent.of("FlowThreadPool-closeExecutorThreadPool", "ZeroFlow线程池awaitTermination-TimeOut:" + CLOSE_AWAIT_TIME + "毫秒"));
+                    elog.info(LogEvent.of("ZeroFlowThreadPool-closeExecutorThreadPool", "ZeroFlow线程池awaitTermination-TimeOut:" + CLOSE_AWAIT_TIME + "毫秒"));
                     List<Runnable> droppedTasks = executorService.shutdownNow();
-                    elog.info(LogEvent.of("FlowThreadPool-closeExecutorThreadPool", "ZeroFlow线程池仍有任务未结束")
+                    elog.info(LogEvent.of("ZeroFlowThreadPool-closeExecutorThreadPool", "ZeroFlow线程池仍有任务未结束")
                             .others("task_num:", droppedTasks.size())
                     );
                 }
-                elog.info(LogEvent.of("FlowThreadPool-closeExecutorThreadPool", "ZeroFlow线程池已正常关闭"));
+                elog.info(LogEvent.of("ZeroFlowThreadPool-closeExecutorThreadPool", "ZeroFlow线程池已正常关闭"));
 
             } catch (InterruptedException ex) {
-                elog.info(LogEvent.of("FlowThreadPool-closeExecutorThreadPool", "ZeroFlow线程池关闭时出现异常", ex));
+                elog.info(LogEvent.of("ZeroFlowThreadPool-closeExecutorThreadPool", "ZeroFlow线程池关闭时出现异常", ex));
             }
         }));
     }
