@@ -22,7 +22,7 @@ public class TFlowLogHandler extends BaseFlowLogHandler {
     private EnhanceLogger elog = EnhanceLogger.of(log);
 
     @Override
-    protected void saveExceptionLog(ErrorLog log) {
+    public void saveExceptionLog(ErrorLog log) {
         elog.info(LogEvent.of("TflowInvoker-saveExceptionLog", "保存错误日志数据")
                 .others("log", log)
         );
@@ -30,7 +30,7 @@ public class TFlowLogHandler extends BaseFlowLogHandler {
     }
 
     @Override
-    protected void updateExceptionLog(ErrorLog log) {
+    public void updateExceptionLog(ErrorLog log) {
         elog.info(LogEvent.of("TflowInvoker-updateExceptionLog", "更新错误日志数据")
                 .others("log", log)
         );

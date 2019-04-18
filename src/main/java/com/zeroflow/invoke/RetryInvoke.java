@@ -54,14 +54,11 @@ public class RetryInvoke {
      */
     public void invoke() throws Exception {
         List<ErrorLog> errorLogList = flowLogHandler.getErrorLogList();
-        elog.info(LogEvent.of("BaseRetryInvoke-invoke-Info", "执行重试流程")
+        elog.info(LogEvent.of("BaseRetryInvoke-invoke-Info", "执行批量重试")
                 .others("错误日志条数", errorLogList.size())
         );
         for (ErrorLog errorLog : errorLogList) {
-            List<String> commandRecord = restoreCommandRecord(errorLog);
-            BaseFlowHandler handle = flowHandler.newInstance();
-            handle.setContext(restoreContext(errorLog)).setFlowLogHandler(flowLogHandler).setRetryParam(commandRecord, errorLog);
-            handle.invoke();
+            invoke(errorLog);
         }
     }
 
@@ -71,8 +68,8 @@ public class RetryInvoke {
      * @throws Exception
      */
     public void invoke(ErrorLog errorLog) throws Exception {
-        elog.info(LogEvent.of("BaseRetryInvoke-invoke-Info", "执行重试流程")
-                .others("错误日志", errorLog)
+        elog.info(LogEvent.of("BaseRetryInvoke-invoke-Info", "重试流程记录")
+                .others("日志", errorLog)
         );
         List<String> commandRecord = restoreCommandRecord(errorLog);
         BaseFlowHandler handle = flowHandler.newInstance();
@@ -99,8 +96,7 @@ public class RetryInvoke {
      * @return
      */
     protected List<String> restoreCommandRecord(ErrorLog log) {
-        ArrayList<String> commandRecord = JSON.parseObject(log.getCommand_record(), new TypeReference<ArrayList<String>>() {
-        });
+        ArrayList<String> commandRecord = JSON.parseObject(log.getCommand_record(), new TypeReference<ArrayList<String>>() {});
         return commandRecord;
     }
 
@@ -129,6 +125,5 @@ public class RetryInvoke {
         }
         return (Class) params[index];
     }
-
 
 }

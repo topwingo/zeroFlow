@@ -29,14 +29,14 @@ public abstract class BaseFlowLogHandler {
      *
      * @param log
      */
-    protected abstract void saveExceptionLog(ErrorLog log);
+    public abstract void saveExceptionLog(ErrorLog log);
 
     /**
      * 用于重试更新错误日志
      *
      * @param log
      */
-    protected abstract void updateExceptionLog(ErrorLog log);
+    public abstract void updateExceptionLog(ErrorLog log);
 
 
     /**
