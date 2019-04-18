@@ -17,12 +17,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class FlowThreadPool {
     private static EnhanceLogger elog = EnhanceLogger.of(log);
+    //默认线程池
     private static Executor threadPool = initThreadPool();
+    //自定义线程池
     private static Executor customThreadPool;
     //异步线程池大小
     private static final int THREAD_NUM = 100;
     //排队队列大小
-    private static final int QUEUE_SIZE = 3000;
+    private static final int QUEUE_SIZE = 1000;
     //关闭线程池的等待时间
     private static final long CLOSE_AWAIT_TIME = 5 * 1000;
     //注册一个关闭线程池的勾子
@@ -91,8 +93,8 @@ public class FlowThreadPool {
             try {
                 ExecutorService executorService = (ExecutorService) getThreadPool();
                 executorService.shutdown();
-                if (!executorService.awaitTermination(CLOSE_AWAIT_TIME, TimeUnit.SECONDS)) {
-                    elog.info(LogEvent.of("FlowThreadPool-closeExecutorThreadPool", "ZeroFlow线程池awaitTermination-TimeOut"));
+                if (!executorService.awaitTermination(CLOSE_AWAIT_TIME, TimeUnit.MILLISECONDS)) {
+                    elog.info(LogEvent.of("FlowThreadPool-closeExecutorThreadPool", "ZeroFlow线程池awaitTermination-TimeOut:"+CLOSE_AWAIT_TIME+"毫秒"));
                     List<Runnable> droppedTasks = executorService.shutdownNow();
                     elog.info(LogEvent.of("FlowThreadPool-closeExecutorThreadPool", "ZeroFlow线程池仍有任务未结束")
                     .others("任务数量:",droppedTasks.size())
