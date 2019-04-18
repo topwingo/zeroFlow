@@ -30,7 +30,7 @@ public class ErrorLog {
     public void of(int code, String message, long user_id, String unique_code, String flowName, String context, String exception_command, String command_record, int type, int retry_num) {
         this.code = code;
         this.user_id=user_id;
-        this.flowName=flowName;
+        this.flowName=ObjectUtils.defaultIfNull(flowName, StringUtils.EMPTY);
         this.unique_code=ObjectUtils.defaultIfNull(unique_code, StringUtils.EMPTY);
         this.message = ObjectUtils.defaultIfNull(message, StringUtils.EMPTY);
         this.context = ObjectUtils.defaultIfNull(context, StringUtils.EMPTY);
