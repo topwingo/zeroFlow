@@ -41,6 +41,7 @@ public abstract class BaseFlowLogHandler {
 
     /**
      * 每次重试时读取的错误日志
+     *
      * @return
      */
     public abstract List<ErrorLog> getErrorLogList();
@@ -48,6 +49,7 @@ public abstract class BaseFlowLogHandler {
 
     /**
      * 记录执行流程的异常
+     *
      * @param handler
      * @param log
      * @return
@@ -56,6 +58,12 @@ public abstract class BaseFlowLogHandler {
         FlowResult result = new FlowResult();
         try {
             result = handler.execCommandList();
+            //重试成功后，更新日志记录状态为已完成
+            if (null != log) {
+                log.setRetry_num(log.getRetry_num() + 1);
+                log.setType(ExceptionTypeEnum.FATAL.vaule());
+                updateExceptionLog(log);
+            }
         } catch (RetryException ex) {
             elog.error(LogEvent.of("FlowInvoker-invoke-ERROR", "RetryException异常", ex)
                     .analyze("userId", ((BaseContext) ex.getContext()).getUserID())
@@ -82,7 +90,6 @@ public abstract class BaseFlowLogHandler {
 
             if (null != log) {
                 updateExceptionLog(errorLog);
-
             } else {
                 saveExceptionLog(errorLog);
             }
@@ -155,6 +162,7 @@ public abstract class BaseFlowLogHandler {
 
     /**
      * 记录执行异步流程的异常
+     *
      * @param handler
      * @param command
      * @param commandRecord

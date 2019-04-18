@@ -103,7 +103,7 @@ public class FlowThreadPool {
                     elog.info(LogEvent.of("FlowThreadPool-closeExecutorThreadPool", "ZeroFlow线程池awaitTermination-TimeOut:" + CLOSE_AWAIT_TIME + "毫秒"));
                     List<Runnable> droppedTasks = executorService.shutdownNow();
                     elog.info(LogEvent.of("FlowThreadPool-closeExecutorThreadPool", "ZeroFlow线程池仍有任务未结束")
-                            .others("任务数量:", droppedTasks.size())
+                            .others("task_num:", droppedTasks.size())
                     );
                 }
                 elog.info(LogEvent.of("FlowThreadPool-closeExecutorThreadPool", "ZeroFlow线程池已正常关闭"));
