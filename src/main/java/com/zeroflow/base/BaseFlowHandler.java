@@ -292,12 +292,12 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
             FiveTuple<Method, String, Boolean, Boolean, String[]> unit = registerUnit.get(this.getClass().getName()).get(command);
             ;
             if (null == unit || null == unit.first) {
-                throw new CriticalException("找不到配置的命令名称:" + command, FlowErrEnum.BIZ_ERROR.code());
+                throw new CriticalException("找不到配置的命令名称:" + command, FlowErrEnum.UNIT_CONF_ERROR.code());
             }
             //前置条件检查
             for (String pre : unit.five) {
                 if (!commandRecord.contains(pre)) {
-                    throw new CriticalException(command + "的前置条件:" + pre + "未完成", FlowErrEnum.BIZ_ERROR.code());
+                    throw new CriticalException(command + "的前置条件:" + pre + "未完成", FlowErrEnum.PRE_CHECK_ERROR.code());
                 }
             }
             //普通流程开启异步，重试流程不使用异步只限同步执行
