@@ -41,7 +41,6 @@ public class TestFlow {
                     .analyze("result", result)
             );
         }
-        Thread.sleep(1000);
     }
 
     @Test
@@ -63,7 +62,6 @@ public class TestFlow {
                     .analyze("result", result)
             );
         }
-        Thread.sleep(1000);
     }
 
     @Test
