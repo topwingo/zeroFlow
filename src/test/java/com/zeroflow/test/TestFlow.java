@@ -1,6 +1,7 @@
 package com.zeroflow.test;
 
 import com.zeroflow.base.BaseFlowHandler;
+import com.zeroflow.base.BaseFlowLogHandler;
 import com.zeroflow.bean.ErrorLog;
 import com.zeroflow.bean.FlowResult;
 import com.zeroflow.context.MyData;
@@ -81,14 +82,20 @@ public class TestFlow {
     @Test
     public void singleRetry() throws Exception {
         elog.info(LogEvent.of("TestFlow-singleRetry", "重试单条记录"));
+
+        //自动根据flowname的进行重试
+        TFlowLogHandler LogHandler=new TFlowLogHandler();
+        RetryInvoke autoInvoke = new RetryInvoke(LogHandler);
+        autoInvoke.autoInvoke();
+
+
         ErrorLog log = new ErrorLog();
-        String context = "{\"flowName\":\"singleretry-Flow\",\"t2Result\":\"i am singleRetry\",\"t3Result\":[],\"uniqueCode\":\"uuid:11111\",\"userID\":00000002}";
+        String context = "{\"flowName\":\"com.zeroflow.handler.T2FlowHandle\",\"t2Result\":\"i am singleRetry\",\"t3Result\":[],\"uniqueCode\":\"uuid:11111\",\"userID\":00000002}";
         String commandRecord = "[\"T2\"]";
         log.setContext(context);
         log.setCommand_record(commandRecord);
-
         //设置需要重试的流程，流程需要用到的日志管理器
-        RetryInvoke invoke = new RetryInvoke(T2FlowHandle.class, TFlowLogHandler.class);
+        RetryInvoke invoke = new RetryInvoke(TFlowHandle.class, TFlowLogHandler.class);
         //执行重试
         invoke.invoke(log);
     }

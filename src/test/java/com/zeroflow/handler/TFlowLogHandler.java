@@ -43,8 +43,9 @@ public class TFlowLogHandler extends BaseFlowLogHandler {
         );
 
         ErrorLog log = new ErrorLog();
-        String context = "{\"flowName\":\"retry-Flow\",\"t2Result\":\"i am retry\",\"t3Result\":[],\"uniqueCode\":\"uuid:123456789\",\"userID\":00000001}";
+        String context = "{\"flowName\":\"com.zeroflow.handler.T2FlowHandle\",\"t2Result\":\"i am retry\",\"t3Result\":[],\"uniqueCode\":\"uuid:123456789\",\"userID\":00000001}";
         String commandRecord = "[\"T2\"]";
+        log.setFlowName("com.zeroflow.handler.T2FlowHandle");
         log.setContext(context);
         log.setCommand_record(commandRecord);
         ArrayList<ErrorLog> list = new ArrayList<ErrorLog>();

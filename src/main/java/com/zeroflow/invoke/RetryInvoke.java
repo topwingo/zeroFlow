@@ -29,22 +29,72 @@ public class RetryInvoke {
     private BaseFlowLogHandler flowLogHandler;
 
     /**
-     * @param flowHandlerClz    流程对应的管理器
+     * @param flowLogHandler 流程对应的日志管理器
+     */
+    public RetryInvoke(BaseFlowLogHandler flowLogHandler) {
+        this.flowLogHandler = flowLogHandler;
+    }
+
+    /**
+     *
      * @param flowLogHandlerClz 流程对应的日志管理器
      */
-    public RetryInvoke(Class<? extends BaseFlowHandler> flowHandlerClz, Class<? extends BaseFlowLogHandler> flowLogHandlerClz) {
-        this.flowHandler = flowHandlerClz;
+    public RetryInvoke(Class<? extends BaseFlowLogHandler> flowLogHandlerClz) {
         try {
-            this.flowLogHandler = (BaseFlowLogHandler) flowLogHandlerClz.newInstance();
+            this.flowLogHandler = flowLogHandlerClz.newInstance();
         } catch (Exception ex) {
             elog.error(LogEvent.of("RetryInvoke-RetryInvoke", "初始化FlowLogHandler异常", ex)
             );
         }
     }
 
+    /**
+     * @param flowHandlerClz    流程对应的管理器
+     * @param flowLogHandlerClz 流程对应的日志管理器
+     */
+    public RetryInvoke(Class<? extends BaseFlowHandler> flowHandlerClz, Class<? extends BaseFlowLogHandler> flowLogHandlerClz) {
+        this.flowHandler = flowHandlerClz;
+        try {
+            this.flowLogHandler = flowLogHandlerClz.newInstance();
+        } catch (Exception ex) {
+            elog.error(LogEvent.of("RetryInvoke-RetryInvoke", "初始化FlowLogHandler异常", ex)
+            );
+        }
+    }
+
+    /**
+     * @param flowHandlerClz 流程对应的管理器
+     * @param flowLogHandler 流程对应的日志管理器
+     */
     public RetryInvoke(Class<? extends BaseFlowHandler> flowHandlerClz, BaseFlowLogHandler flowLogHandler) {
         this.flowHandler = flowHandlerClz;
         this.flowLogHandler = flowLogHandler;
+    }
+
+    /**
+     * 自动根据日志的flowName分析数据进行重试，flowName只能生成类名
+     *
+     * @throws Exception
+     */
+    public void autoInvoke() throws Exception {
+        List<ErrorLog> errorLogList = flowLogHandler.getErrorLogList();
+        elog.info(LogEvent.of("BaseRetryInvoke-invoke-Info", "执行批量重试")
+                .others("错误日志条数", errorLogList.size())
+        );
+        for (ErrorLog errorLog : errorLogList) {
+            System.out.println(JSON.toJSONString(errorLog));
+            try {
+                System.out.println("class:"+errorLog.getFlowName());
+                Class flowClass =Class.forName(errorLog.getFlowName());
+                BaseFlowHandler flowHandler = (BaseFlowHandler) flowClass.newInstance();
+                List<String> commandRecord = restoreCommandRecord(errorLog);
+                flowHandler.setContext(restoreContext(flowClass,errorLog)).setFlowLogHandler(flowLogHandler).setRetryParam(commandRecord, errorLog);
+                flowHandler.invoke();
+            } catch (Exception ex) {
+                elog.error(LogEvent.of("RetryInvoke-autoInvoke", "重试异常", ex)
+                );
+            }
+        }
     }
 
     /**
@@ -58,7 +108,10 @@ public class RetryInvoke {
                 .others("错误日志条数", errorLogList.size())
         );
         for (ErrorLog errorLog : errorLogList) {
-            invoke(errorLog);
+            List<String> commandRecord = restoreCommandRecord(errorLog);
+            BaseFlowHandler handle = flowHandler.newInstance();
+            handle.setContext(restoreContext(flowHandler,errorLog)).setFlowLogHandler(flowLogHandler).setRetryParam(commandRecord, errorLog);
+            handle.invoke();
         }
     }
 
@@ -73,7 +126,7 @@ public class RetryInvoke {
         );
         List<String> commandRecord = restoreCommandRecord(errorLog);
         BaseFlowHandler handle = flowHandler.newInstance();
-        handle.setContext(restoreContext(errorLog)).setFlowLogHandler(flowLogHandler).setRetryParam(commandRecord, errorLog);
+        handle.setContext(restoreContext(flowHandler,errorLog)).setFlowLogHandler(flowLogHandler).setRetryParam(commandRecord, errorLog);
         handle.invoke();
     }
 
@@ -83,7 +136,7 @@ public class RetryInvoke {
      * @param log
      * @return
      */
-    protected <T> T restoreContext(ErrorLog log) {
+    protected <T> T restoreContext(Class flowHandler,ErrorLog log) {
         Class<T> clazz = getSuperClassGenricType(flowHandler, 0);
         T context = JSON.parseObject(log.getContext(), clazz);
         return context;
@@ -96,7 +149,8 @@ public class RetryInvoke {
      * @return
      */
     protected List<String> restoreCommandRecord(ErrorLog log) {
-        ArrayList<String> commandRecord = JSON.parseObject(log.getCommand_record(), new TypeReference<ArrayList<String>>() {});
+        ArrayList<String> commandRecord = JSON.parseObject(log.getCommand_record(), new TypeReference<ArrayList<String>>() {
+        });
         return commandRecord;
     }
 
