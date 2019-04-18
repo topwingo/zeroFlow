@@ -28,22 +28,10 @@ public class CriticalException extends Exception {
         super();
     }
 
-    public CriticalException(FlowErrEnum error) {
-        super(error.msg());
-        this.code = error.code();
-        this.message = error.msg();
-    }
-
     public CriticalException(String msg, int code) {
         super(msg);
         this.code = code;
         this.message = msg;
-    }
-
-    public CriticalException(Throwable cause, FlowErrEnum err) {
-        super(err.msg(), cause);
-        this.message = err.msg();
-        this.code = err.code();
     }
 
     public CriticalException(Throwable cause, String msg, int code) {

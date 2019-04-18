@@ -386,7 +386,7 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
                         .analyze("unique_code", context.getUniqueCode())
                         .analyze("flow_name", context.getFlowName())
                 );
-                throw new CriticalException(FlowErrEnum.REFLECT_INVOKE_ERROR);
+                throw new CriticalException(FlowErrEnum.REFLECT_INVOKE_ERROR.msg(),FlowErrEnum.REFLECT_INVOKE_ERROR.code());
             }
         } catch (Exception ex) {
             elog.error(LogEvent.of("BaseFlowHandler-reflectInvoke", "反射调用异常", ex)
@@ -394,7 +394,7 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
                     .analyze("unique_code", context.getUniqueCode())
                     .analyze("flow_name", context.getFlowName())
             );
-            throw new CriticalException(FlowErrEnum.REFLECT_INVOKE_ERROR);
+            throw new CriticalException(FlowErrEnum.REFLECT_INVOKE_ERROR.msg(),FlowErrEnum.REFLECT_INVOKE_ERROR.code());
         }
 
     }

@@ -29,22 +29,10 @@ public class DiscardException extends Exception {
         super();
     }
 
-    public DiscardException(FlowErrEnum error) {
-        super(error.msg());
-        this.code = error.code();
-        this.message = error.msg();
-    }
-
     public DiscardException(String msg, int code) {
         super(msg);
         this.code = code;
         this.message = msg;
-    }
-
-    public DiscardException(Throwable cause, FlowErrEnum err) {
-        super(err.msg(), cause);
-        this.message = err.msg();
-        this.code = err.code();
     }
 
     public DiscardException(Throwable cause, String msg, int code) {
@@ -52,7 +40,6 @@ public class DiscardException extends Exception {
         this.message = msg;
         this.code = code;
     }
-
 
     public void of(String exceptionCommand, List<String> commandRecord, Object context) {
         this.setExceptionCommand(exceptionCommand);
