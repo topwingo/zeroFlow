@@ -36,7 +36,6 @@ public class RetryInvoke {
     }
 
     /**
-     *
      * @param flowLogHandlerClz 流程对应的日志管理器
      */
     public RetryInvoke(Class<? extends BaseFlowLogHandler> flowLogHandlerClz) {
@@ -83,10 +82,10 @@ public class RetryInvoke {
         );
         for (ErrorLog errorLog : errorLogList) {
             try {
-                Class flowClass =Class.forName(errorLog.getFlowName());
+                Class flowClass = Class.forName(errorLog.getFlowName());
                 BaseFlowHandler handler = (BaseFlowHandler) flowClass.newInstance();
                 List<String> commandRecord = restoreCommandRecord(errorLog);
-                handler.setContext(restoreContext(flowClass,errorLog)).setFlowLogHandler(flowLogHandler).setRetryParam(commandRecord, errorLog);
+                handler.setContext(restoreContext(flowClass, errorLog)).setFlowLogHandler(flowLogHandler).setRetryParam(commandRecord, errorLog);
                 handler.invoke();
             } catch (Exception ex) {
                 elog.error(LogEvent.of("RetryInvoke-autoInvoke", "重试异常", ex)
@@ -102,14 +101,11 @@ public class RetryInvoke {
      */
     public void invoke() throws Exception {
         List<ErrorLog> errorLogList = flowLogHandler.getErrorLogList();
-        elog.info(LogEvent.of("BaseRetryInvoke-invoke-Info", "执行批量重试")
+        elog.info(LogEvent.of("BaseRetryInvoke-invoke", "执行批量重试")
                 .others("错误日志条数", errorLogList.size())
         );
         for (ErrorLog errorLog : errorLogList) {
-            List<String> commandRecord = restoreCommandRecord(errorLog);
-            BaseFlowHandler handle = flowHandler.newInstance();
-            handle.setContext(restoreContext(flowHandler,errorLog)).setFlowLogHandler(flowLogHandler).setRetryParam(commandRecord, errorLog);
-            handle.invoke();
+            invoke(errorLog);
         }
     }
 
@@ -119,12 +115,12 @@ public class RetryInvoke {
      * @throws Exception
      */
     public void invoke(ErrorLog errorLog) throws Exception {
-        elog.info(LogEvent.of("BaseRetryInvoke-invoke-Info", "重试流程记录")
+        elog.info(LogEvent.of("BaseRetryInvoke-invoke", "重试记录")
                 .others("日志", errorLog)
         );
         List<String> commandRecord = restoreCommandRecord(errorLog);
         BaseFlowHandler handle = flowHandler.newInstance();
-        handle.setContext(restoreContext(flowHandler,errorLog)).setFlowLogHandler(flowLogHandler).setRetryParam(commandRecord, errorLog);
+        handle.setContext(restoreContext(flowHandler, errorLog)).setFlowLogHandler(flowLogHandler).setRetryParam(commandRecord, errorLog);
         handle.invoke();
     }
 
@@ -134,7 +130,7 @@ public class RetryInvoke {
      * @param log
      * @return
      */
-    protected <T> T restoreContext(Class flowHandler,ErrorLog log) {
+    protected <T> T restoreContext(Class flowHandler, ErrorLog log) {
         Class<T> clazz = getSuperClassGenricType(flowHandler, 0);
         T context = JSON.parseObject(log.getContext(), clazz);
         return context;
