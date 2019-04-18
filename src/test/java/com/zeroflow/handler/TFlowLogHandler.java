@@ -1,6 +1,5 @@
 package com.zeroflow.handler;
 
-import com.zeroflow.base.BaseFlowHandler;
 import com.zeroflow.base.BaseFlowLogHandler;
 import com.zeroflow.bean.ErrorLog;
 import com.zeroflow.utils.EnhanceLogger;

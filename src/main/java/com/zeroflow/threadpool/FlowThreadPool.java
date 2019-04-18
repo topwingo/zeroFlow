@@ -18,17 +18,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class FlowThreadPool {
     private static EnhanceLogger elog = EnhanceLogger.of(log);
     //默认线程池
-    private static Executor threadPool = initThreadPool();
+    private static Executor threadPool;
     //自定义线程池
     private static Executor customThreadPool;
-    //异步线程池大小
+    //线程池大小
     private static final int THREAD_NUM = 100;
     //排队队列大小
     private static final int QUEUE_SIZE = 1000;
     //关闭线程池的等待时间
-    private static final long CLOSE_AWAIT_TIME = 5 * 1000;
+    private static final long CLOSE_AWAIT_TIME = 10 * 1000;
+
     //注册一个关闭线程池的勾子
-    static{
+    static {
         closeExecutorThreadPool();
     }
 
@@ -63,7 +64,8 @@ public class FlowThreadPool {
 
     /**
      * 获取线程池
-     *如配置自定义线程池优先获取，后才获取默认线程池
+     * 如配置自定义线程池优先获取，后才获取默认线程池
+     *
      * @return
      */
     public static Executor getThreadPool() {
@@ -90,14 +92,18 @@ public class FlowThreadPool {
      */
     public static void closeExecutorThreadPool() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            //线程未使用，直接返回
+            if (null == threadPool && null == customThreadPool) {
+                return;
+            }
             try {
                 ExecutorService executorService = (ExecutorService) getThreadPool();
                 executorService.shutdown();
                 if (!executorService.awaitTermination(CLOSE_AWAIT_TIME, TimeUnit.MILLISECONDS)) {
-                    elog.info(LogEvent.of("FlowThreadPool-closeExecutorThreadPool", "ZeroFlow线程池awaitTermination-TimeOut:"+CLOSE_AWAIT_TIME+"毫秒"));
+                    elog.info(LogEvent.of("FlowThreadPool-closeExecutorThreadPool", "ZeroFlow线程池awaitTermination-TimeOut:" + CLOSE_AWAIT_TIME + "毫秒"));
                     List<Runnable> droppedTasks = executorService.shutdownNow();
                     elog.info(LogEvent.of("FlowThreadPool-closeExecutorThreadPool", "ZeroFlow线程池仍有任务未结束")
-                    .others("任务数量:",droppedTasks.size())
+                            .others("任务数量:", droppedTasks.size())
                     );
                 }
                 elog.info(LogEvent.of("FlowThreadPool-closeExecutorThreadPool", "ZeroFlow线程池已正常关闭"));

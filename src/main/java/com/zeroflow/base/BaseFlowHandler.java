@@ -12,7 +12,6 @@ import com.zeroflow.exception.RetryException;
 import com.zeroflow.threadpool.FlowThreadPool;
 import com.zeroflow.utils.EnhanceLogger;
 import com.zeroflow.utils.LogEvent;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -49,8 +48,6 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
     private List<String> commandRecord = new ArrayList<String>();
     //错误日志
     private ErrorLog errorLog = null;
-    //异步线程
-    private static Executor EXECUTOR = FlowThreadPool.getThreadPool();
 
     /**
      * 初始化handle器
@@ -131,7 +128,7 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
      * @return
      */
     protected Executor getExecutor() {
-        return EXECUTOR;
+        return FlowThreadPool.getThreadPool();
     }
 
     /**

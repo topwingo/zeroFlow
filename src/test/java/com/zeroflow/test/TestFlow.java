@@ -1,7 +1,6 @@
 package com.zeroflow.test;
 
 import com.zeroflow.base.BaseFlowHandler;
-import com.zeroflow.base.BaseFlowLogHandler;
 import com.zeroflow.bean.ErrorLog;
 import com.zeroflow.bean.FlowResult;
 import com.zeroflow.context.MyData;

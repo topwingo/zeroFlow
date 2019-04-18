@@ -1,6 +1,5 @@
 package com.zeroflow.handler;
 
-import com.alibaba.fastjson.JSON;
 import com.zeroflow.annotation.Unit;
 import com.zeroflow.base.BaseFlowHandler;
 import com.zeroflow.bean.FlowResult;

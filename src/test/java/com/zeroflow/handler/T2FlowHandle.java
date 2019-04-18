@@ -1,7 +1,6 @@
 package com.zeroflow.handler;
 
 import com.zeroflow.annotation.Unit;
-import com.zeroflow.base.BaseFlowHandler;
 import com.zeroflow.bean.FlowResult;
 import com.zeroflow.bizservice.TestBiz;
 import com.zeroflow.context.MyData;
@@ -38,7 +37,7 @@ public class T2FlowHandle extends TFlowHandle {
     }
 
 
-    @Unit(name = "T1", enable = true, order = 1, asyn = true)
+    @Unit(name = "T1", enable = true, order = 1, asyn = false)
     public void T1() throws InterruptedException, CriticalException {
         elog.info(LogEvent.of("T2FlowHandle", "######T1"));
         flow.T1(3333L);
