@@ -23,8 +23,8 @@ public class TestBiz {
     private EnhanceLogger elog = EnhanceLogger.of(log);
 
     public void T1(Long userId) throws CriticalException, InterruptedException {
-       /* if (true) {
-            throw new CriticalException("T1测试异常-CriticalException", FlowErrEnum.BIZ_ERROR.code());
+     /*  if (true) {
+            throw new CriticalException("T1测试异常-CriticalException", FlowErrEnum.ERROR.code());
         }*/
         Thread.sleep(300);
         elog.info(LogEvent.of("TestBiz", "T1-Result")
@@ -34,7 +34,7 @@ public class TestBiz {
 
     public String T2() throws RetryException, InterruptedException {
        /* if (true) {
-            throw new RetryException("T2测试异常-RetryException", FlowErrEnum.BIZ_ERROR.code());
+            throw new RetryException("T2测试异常-RetryException", FlowErrEnum.ERROR.code());
         }*/
         Thread.sleep(50);
         String text = "hi,我是T2";
