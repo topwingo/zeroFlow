@@ -224,9 +224,8 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
         //构建一个已全部完成的命令列表，只将其中删除，重试时即仅重试当前命令
         List<String> commandRecord = new ArrayList<String>(getCommandList());
         commandRecord.remove(command);
-        getExecutor().execute(() -> {
-            flowLogHandler.asynInvoke(this, command, commandRecord);
-        });
+        //加入到线程池
+        getExecutor().execute(() -> flowLogHandler.asynInvoke(this, command, commandRecord));
     }
 
     /**
@@ -274,6 +273,7 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
                 .analyze("command", command)
         );
         try {
+            //检查重试流程此命令是否已执行
             if (retryFlag && commandRecord.contains(command)) {
                 elog.info(LogEvent.of("BaseFlowHandler-execCommand", "重试流程：" + command + "命令已执行")
                         .analyze("userId", context.getUserID())
@@ -295,7 +295,7 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
                     throw new CriticalException(command + "的前置条件:" + pre + "未完成", FlowErrEnum.BIZ_ERROR.code());
                 }
             }
-            //开启异步，重试不开启
+            //普通流程开启异步，重试流程不使用异步只限同步执行
             if (!retryFlag && unit.third) {
                 elog.info(LogEvent.of("BaseFlowHandler-execCommand", command + "开启异步执行")
                         .analyze("userId", context.getUserID())
@@ -304,6 +304,7 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
                         .analyze("command", command)
                 );
                 try {
+                    //开启异步后，直接返回
                     asynFlowInvokerWrapper(command);
                     commandRecord.add(command);
                     return;
@@ -317,6 +318,7 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
                 }
             }
             reflectInvoke(command);
+            commandRecord.add(command);
         } catch (CriticalException ex) {
             ex.of(command, this.commandRecord, this.context);
             throw ex;
@@ -346,6 +348,7 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
     private void asynExecCommand(String command, List commandRecord) throws CriticalException, RetryException, DiscardException {
         try {
             reflectInvoke(command);
+            commandRecord.add(command);
         } catch (CriticalException ex) {
             ex.of(command, commandRecord, this.context);
             throw ex;
@@ -367,7 +370,6 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
             FiveTuple<Method, String, Boolean, Boolean, String[]> unit = registerUnit.get(this.getClass().getName()).get(command);
             beforeCommand(command);
             unit.first.invoke(this);
-            commandRecord.add(command);
             afterCommand(command);
         } catch (InvocationTargetException ex) {
             if (ex.getTargetException() instanceof CriticalException) {
