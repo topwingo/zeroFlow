@@ -71,33 +71,28 @@ public class TestFlow {
     public void retry() throws Exception {
         elog.info(LogEvent.of("TestFlow-retry", "执行重试流程"));
         for (int i = 0; i < 1; i++) {
-            //设置需要重试的流程，流程需要用到的日志管理器
-            RetryInvoke invoke = new RetryInvoke(TFlowHandle.class, TFlowLogHandler.class);
+            //设置用到的日志管理器，自动根据日志的flowName构建流程进行批量重试
+            RetryInvoke invoke = new RetryInvoke(TFlowLogHandler.class);
             //执行重试
             invoke.invoke();
         }
-        Thread.sleep(1000);
     }
 
     @Test
     public void singleRetry() throws Exception {
         elog.info(LogEvent.of("TestFlow-singleRetry", "重试单条记录"));
 
-        //自动根据flowname的进行重试
-        TFlowLogHandler LogHandler=new TFlowLogHandler();
-        RetryInvoke autoInvoke = new RetryInvoke(LogHandler);
-        autoInvoke.autoInvoke();
-
-
         ErrorLog log = new ErrorLog();
         String context = "{\"flowName\":\"com.zeroflow.handler.T2FlowHandle\",\"t2Result\":\"i am singleRetry\",\"t3Result\":[],\"uniqueCode\":\"uuid:11111\",\"userID\":00000002}";
         String commandRecord = "[\"T2\"]";
         log.setContext(context);
         log.setCommand_record(commandRecord);
-        //设置需要重试的流程，流程需要用到的日志管理器
-        RetryInvoke invoke = new RetryInvoke(TFlowHandle.class, TFlowLogHandler.class);
-        //执行重试
-        invoke.invoke(log);
+        //设置用到需要用到的日志管理器
+        RetryInvoke invoke = new RetryInvoke(TFlowLogHandler.class);
+        //指定流程进行批量重试
+        invoke.invoke(TFlowHandle.class);
+        //指定流程进行单条日志的重试
+        invoke.invoke(T2FlowHandle.class, log);
     }
 }
 

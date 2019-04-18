@@ -23,8 +23,6 @@ import java.util.List;
 @Slf4j
 public class RetryInvoke {
     private EnhanceLogger elog = EnhanceLogger.of(log);
-    //流程执行器
-    private Class<? extends BaseFlowHandler> flowHandler;
     //流程日志管理器
     private BaseFlowLogHandler flowLogHandler;
 
@@ -48,34 +46,10 @@ public class RetryInvoke {
     }
 
     /**
-     * @param flowHandlerClz    流程对应的管理器
-     * @param flowLogHandlerClz 流程对应的日志管理器
-     */
-    public RetryInvoke(Class<? extends BaseFlowHandler> flowHandlerClz, Class<? extends BaseFlowLogHandler> flowLogHandlerClz) {
-        this.flowHandler = flowHandlerClz;
-        try {
-            this.flowLogHandler = flowLogHandlerClz.newInstance();
-        } catch (Exception ex) {
-            elog.error(LogEvent.of("RetryInvoke-RetryInvoke", "初始化FlowLogHandler异常", ex)
-            );
-        }
-    }
-
-    /**
-     * @param flowHandlerClz 流程对应的管理器
-     * @param flowLogHandler 流程对应的日志管理器
-     */
-    public RetryInvoke(Class<? extends BaseFlowHandler> flowHandlerClz, BaseFlowLogHandler flowLogHandler) {
-        this.flowHandler = flowHandlerClz;
-        this.flowLogHandler = flowLogHandler;
-    }
-
-    /**
-     * 自动根据日志的flowName分析数据进行重试，flowName只能生成类名
-     *
+     * 自动根据日志的flowName字段分析出流程重试，flowName为流程className
      * @throws Exception
      */
-    public void autoInvoke() throws Exception {
+    public void invoke() throws Exception {
         List<ErrorLog> errorLogList = flowLogHandler.getErrorLogList();
         elog.info(LogEvent.of("BaseRetryInvoke-invoke-Info", "执行批量重试")
                 .others("错误日志条数", errorLogList.size())
@@ -95,32 +69,33 @@ public class RetryInvoke {
     }
 
     /**
-     * 执行重试
-     *
+     * 指定流程执行批量重试
+     * @param flowHandlerClz 流程
      * @throws Exception
      */
-    public void invoke() throws Exception {
+    public void invoke(Class<? extends BaseFlowHandler> flowHandlerClz) throws Exception {
         List<ErrorLog> errorLogList = flowLogHandler.getErrorLogList();
         elog.info(LogEvent.of("BaseRetryInvoke-invoke", "执行批量重试")
                 .others("错误日志条数", errorLogList.size())
         );
         for (ErrorLog errorLog : errorLogList) {
-            invoke(errorLog);
+            invoke(flowHandlerClz, errorLog);
         }
     }
 
     /**
-     * 执行重试单个命令
-     *
+     * 指定流程执行单条记录重试
+     * @param flowHandlerClz 流程
+     * @param errorLog    错误日志
      * @throws Exception
      */
-    public void invoke(ErrorLog errorLog) throws Exception {
+    public void invoke(Class<? extends BaseFlowHandler> flowHandlerClz, ErrorLog errorLog) throws Exception {
         elog.info(LogEvent.of("BaseRetryInvoke-invoke", "重试记录")
                 .others("日志", errorLog)
         );
         List<String> commandRecord = restoreCommandRecord(errorLog);
-        BaseFlowHandler handle = flowHandler.newInstance();
-        handle.setContext(restoreContext(flowHandler, errorLog)).setFlowLogHandler(flowLogHandler).setRetryParam(commandRecord, errorLog);
+        BaseFlowHandler handle = flowHandlerClz.newInstance();
+        handle.setContext(restoreContext(flowHandlerClz, errorLog)).setFlowLogHandler(flowLogHandler).setRetryParam(commandRecord, errorLog);
         handle.invoke();
     }
 
