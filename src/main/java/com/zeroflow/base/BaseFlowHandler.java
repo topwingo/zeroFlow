@@ -34,7 +34,7 @@ import java.util.concurrent.Executor;
 @Slf4j
 public abstract class BaseFlowHandler<D extends BaseContext> {
     private EnhanceLogger elog = EnhanceLogger.of(log);
-    //自定义的流程注解信息<Method,流程名称，是否开启异步，前置检查列表>
+    //自定义的流程注解信息<Method,流程名称，是否开启异步,是否启用单元，前置检查列表>
     private static Map<String, Map<String, FiveTuple<Method, String, Boolean, Boolean, String[]>>> registerUnit = new ConcurrentHashMap<>();
     //命令执行顺序
     private static Map<String, List<String>> unitOrder = new ConcurrentHashMap<>();
@@ -222,7 +222,7 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
      * @param command
      * @throws Exception
      */
-    private void asynFlowInvokerWrapper(String command) {
+    private void addAsynTask(String command) {
         //构建一个已全部完成的命令列表，只将其中删除，重试时即仅重试当前命令
         List<String> commandRecord = new ArrayList<String>(getCommandList());
         commandRecord.remove(command);
@@ -306,8 +306,8 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
                         .analyze("command", command)
                 );
                 try {
-                    //开启异步后，直接返回
-                    asynFlowInvokerWrapper(command);
+                    //开启异步后,此单元的主线任务完成
+                    addAsynTask(command);
                     commandRecord.add(command);
                     return;
                 } catch (Exception ex) {
