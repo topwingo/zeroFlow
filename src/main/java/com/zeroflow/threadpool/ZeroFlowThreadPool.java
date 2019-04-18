@@ -25,7 +25,7 @@ public class ZeroFlowThreadPool {
     private static final int THREAD_NUM = 100;
     //排队队列大小
     private static final int QUEUE_SIZE = 1000;
-    //关闭线程池的等待时间
+    //关闭线程池的等待时间MILLISECONDS
     private static final long CLOSE_AWAIT_TIME = 10 * 1000;
 
     //注册一个关闭线程池的勾子
