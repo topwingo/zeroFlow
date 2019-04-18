@@ -82,14 +82,12 @@ public class RetryInvoke {
                 .others("错误日志条数", errorLogList.size())
         );
         for (ErrorLog errorLog : errorLogList) {
-            System.out.println(JSON.toJSONString(errorLog));
             try {
-                System.out.println("class:"+errorLog.getFlowName());
                 Class flowClass =Class.forName(errorLog.getFlowName());
-                BaseFlowHandler flowHandler = (BaseFlowHandler) flowClass.newInstance();
+                BaseFlowHandler handler = (BaseFlowHandler) flowClass.newInstance();
                 List<String> commandRecord = restoreCommandRecord(errorLog);
-                flowHandler.setContext(restoreContext(flowClass,errorLog)).setFlowLogHandler(flowLogHandler).setRetryParam(commandRecord, errorLog);
-                flowHandler.invoke();
+                handler.setContext(restoreContext(flowClass,errorLog)).setFlowLogHandler(flowLogHandler).setRetryParam(commandRecord, errorLog);
+                handler.invoke();
             } catch (Exception ex) {
                 elog.error(LogEvent.of("RetryInvoke-autoInvoke", "重试异常", ex)
                 );
