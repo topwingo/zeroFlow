@@ -29,7 +29,6 @@ public class TestFlow {
         //定义上下文数据，构建流程入参
         MyData data = new MyData();
         data.setUniqueCode("uuid:123456789");
-        data.setFlowName("execFlowT2");
         data.setUserID(123456);
         for (int i = 0; i < 1; i++) {
             //创建流程

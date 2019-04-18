@@ -15,6 +15,7 @@ import com.zeroflow.utils.LogEvent;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -141,6 +142,10 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
      */
     public BaseFlowHandler setContext(D context) {
         this.context = context;
+        //自动补全流程名称为类名
+        if (StringUtils.isEmpty(this.getContext().getFlowName())) {
+            this.context.setFlowName(this.getClass().getName());
+        }
         return this;
     }
 
