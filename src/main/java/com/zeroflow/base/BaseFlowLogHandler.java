@@ -61,7 +61,7 @@ public abstract class BaseFlowLogHandler {
             //重试成功后，更新日志记录状态为已完成
             if (null != log) {
                 log.setRetry_num(log.getRetry_num() + 1);
-                log.setType(ExceptionTypeEnum.FATAL.vaule());
+                log.setType(ExceptionTypeEnum.FINISHED.vaule());
                 updateExceptionLog(log);
             }
         } catch (RetryException ex) {
