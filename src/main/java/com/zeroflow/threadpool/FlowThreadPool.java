@@ -63,7 +63,7 @@ public class FlowThreadPool {
 
     /**
      * 获取线程池
-     *
+     *如配置自定义线程池优先获取，后才获取默认线程池
      * @return
      */
     public static Executor getThreadPool() {
