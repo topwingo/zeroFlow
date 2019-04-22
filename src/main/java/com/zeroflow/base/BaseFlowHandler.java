@@ -139,10 +139,8 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
      */
     public BaseFlowHandler setContext(D context) {
         this.context = context;
-        //自动补全流程名称为类名
-        if (StringUtils.isEmpty(this.getContext().getFlowName())) {
-            this.context.setFlowName(this.getClass().getName());
-        }
+        //自动替换流程名称为类名
+        this.context.setFlowName(this.getClass().getName());
         return this;
     }
 
@@ -386,7 +384,7 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
                         .analyze("unique_code", context.getUniqueCode())
                         .analyze("flow_name", context.getFlowName())
                 );
-                throw new CriticalException(FlowErrEnum.REFLECT_INVOKE_ERROR.msg(),FlowErrEnum.REFLECT_INVOKE_ERROR.code());
+                throw new CriticalException(FlowErrEnum.REFLECT_INVOKE_ERROR.msg(), FlowErrEnum.REFLECT_INVOKE_ERROR.code());
             }
         } catch (Exception ex) {
             elog.error(LogEvent.of("BaseFlowHandler-reflectInvoke", "反射调用异常", ex)
@@ -394,7 +392,7 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
                     .analyze("unique_code", context.getUniqueCode())
                     .analyze("flow_name", context.getFlowName())
             );
-            throw new CriticalException(FlowErrEnum.REFLECT_INVOKE_ERROR.msg(),FlowErrEnum.REFLECT_INVOKE_ERROR.code());
+            throw new CriticalException(FlowErrEnum.REFLECT_INVOKE_ERROR.msg(), FlowErrEnum.REFLECT_INVOKE_ERROR.code());
         }
 
     }
