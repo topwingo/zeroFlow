@@ -4,7 +4,9 @@ import com.zeroflow.utils.EnhanceLogger;
 import com.zeroflow.utils.LogEvent;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -81,6 +83,33 @@ public class ZeroFlowThreadPool {
         }
         return threadPool;
     }
+
+
+    /**
+     * 获取线程池执行的执行状况
+     * ActiveCount  正在执行任务数
+     *TaskCount  队列任务数
+     * @return
+     */
+    public static Map<String, String> getThreadPoolTaskNum() {
+        HashMap<String, String> result = new HashMap();
+        //线程未使用，直接返回
+        if (null == threadPool && null == customThreadPool) {
+            result.put("ActiveCount", "0");
+            result.put("TaskCount", "0");
+            return result;
+        }
+        ThreadPoolExecutor executorService = ((ThreadPoolExecutor) getThreadPool());
+        String activeCount = String.valueOf(executorService.getActiveCount());
+        String taskCount = String.valueOf(executorService.getTaskCount());
+        //正在执行任务数
+        result.put("ActiveCount", activeCount);
+        //队列任务数
+        result.put("TaskCount", taskCount);
+        return result;
+
+    }
+
 
     //用手设置新线程池
     public static void setThreadPool(Executor threadPool) {
