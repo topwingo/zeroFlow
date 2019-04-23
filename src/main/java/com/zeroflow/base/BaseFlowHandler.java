@@ -1,6 +1,6 @@
 package com.zeroflow.base;
 
-import com.zeroflow.annotation.Unit;
+import com.zeroflow.annotation.ZeroUnit;
 import com.zeroflow.bean.ErrorLog;
 import com.zeroflow.bean.FlowResult;
 import com.zeroflow.bean.tuple.FiveTuple;
@@ -71,10 +71,14 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
                     while (finalSuperClass.getSuperclass() != Object.class) {
                         Method[] declaredMethods = finalSuperClass.getMethods();
                         for (Method method : declaredMethods) {
-                            if (method.isAnnotationPresent(Unit.class)) {
-                                Unit annotation = method.getAnnotation(Unit.class);
+                            if (method.isAnnotationPresent(ZeroUnit.class)) {
+                                ZeroUnit annotation = method.getAnnotation(ZeroUnit.class);
                                 //单元名称
                                 String name = annotation.name();
+                                //单元名称没有配置，默认使用方法名
+                                if (StringUtils.isEmpty(name)) {
+                                    name = method.getName();
+                                }
                                 //命令执行顺序
                                 Integer order = annotation.order();
                                 //是否异步
@@ -304,7 +308,7 @@ public abstract class BaseFlowHandler<D extends BaseContext> {
                         .analyze("command", command)
                 );
                 try {
-                    //开启异步后,此单元的主线任务完成
+                    //开启异步
                     addAsynTask(command);
                     commandRecord.add(command);
                     return;

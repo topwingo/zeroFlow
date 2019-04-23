@@ -8,12 +8,12 @@ import java.lang.annotation.Target;
 /**
  * @author: richard.chen
  * @version: v1.0
- * @description:获取流程属性
+ * @description:流程属性
  * @date:2019/4/8
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Unit {
+public @interface ZeroUnit {
     //单元名称
     String name() default "";
     //执行顺序

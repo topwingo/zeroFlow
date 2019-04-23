@@ -1,6 +1,6 @@
 package com.zeroflow.handler;
 
-import com.zeroflow.annotation.Unit;
+import com.zeroflow.annotation.ZeroUnit;
 import com.zeroflow.base.BaseFlowHandler;
 import com.zeroflow.bean.FlowResult;
 import com.zeroflow.bizservice.TestBiz;
@@ -38,20 +38,20 @@ public class TFlowHandle extends BaseFlowHandler<MyData> {
     }
 
 
-    @Unit(name = "T1", order = 1, asyn = true)
+    @ZeroUnit(name = "T1", order = 1, asyn = true)
     public void T1() throws InterruptedException, CriticalException {
         elog.info(LogEvent.of("TFlowHandle", "######T1"));
         flow.T1(123456L);
     }
 
-    @Unit(name = "T2", order = 2,enable = true,asyn = false, preCheck = {"T1"})
+    @ZeroUnit(name = "T2", order = 2,enable = true,asyn = false, preCheck = {"T1"})
     public void T2() throws RetryException, InterruptedException {
         elog.info(LogEvent.of("TFlowHandle", "######T2"));
 
         this.getContext().setT2Result(flow.T2());
     }
 
-    @Unit(name = "T3", order = 3, preCheck = {"T1", "T2"})
+    @ZeroUnit(name = "T3", order = 3, preCheck = {"T1", "T2"})
     public void T3() throws DiscardException {
         elog.info(LogEvent.of("TFlowHandle", "######T3"));
         this.getContext().setT3Result(flow.T3("T0001"));
